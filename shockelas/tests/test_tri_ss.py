@@ -3,7 +3,6 @@ A module for testing `tri_ss.py`.
 
 """
 
-import numpy as np
 from numpy.testing import assert_allclose
 from shockelas import map_perturbed_model_to_tri_ss
 

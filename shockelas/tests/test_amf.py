@@ -3,8 +3,6 @@ A module for testing `amf.py`.
 
 """
 
-
-import numpy as np
 from numpy.testing import assert_allclose
 
 

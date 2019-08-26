@@ -19,3 +19,16 @@ def test_Ɛ_tilde(amf, 𝒫_bar, 𝒫_tilde, rtol, atol):
 
     for actual, expected in zip(𝒫_tilde_test, 𝒫_tilde):
         assert_allclose(actual, expected, rtol=rtol, atol=atol)
+
+
+def test_iterate(amf, 𝒫_bar, rtol, atol):
+    T = 1
+    amf.iterate(T)
+    𝒫_tilde = amf.𝒫
+
+    test_objs = zip([amf.𝒫_t_bar_path[T], amf.𝒫_t_tilde_path[T]],
+                    [𝒫_bar, 𝒫_tilde])
+
+    for 𝒫_test, 𝒫 in test_objs:
+        for actual, expected in zip(𝒫_test, 𝒫):
+            assert_allclose(actual, expected, rtol=rtol, atol=atol)

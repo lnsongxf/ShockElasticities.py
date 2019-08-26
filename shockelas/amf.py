@@ -9,7 +9,6 @@ from .util.utilities import *
 
 
 # TODO(QBatista):
-# - Make sure Σ_t_tilde always exists in 𝛆
 # - Avoid matrix inversions
 # - Precompute kronecker products
 # - Add documentation
@@ -20,11 +19,11 @@ class Amf:
         self.tri_ss = tri_ss
         self.α_h = α_h
 
-        𝒫_0_bar = (np.zeros_like(x) for x in 𝒫)
+        𝒫_0_bar = tuple(np.zeros_like(x) for x in 𝒫)
         self.𝒫_t_bar_path = [𝒫_0_bar]
         self.𝒫_t_tilde_path = [None]
         self.Σ_t_tilde_path = [None]
-        self.add_to_path = False
+        self.add_Σ_to_path = False
 
     def Ɛ_bar(self, 𝒫):
         # Unpack parameters
@@ -37,7 +36,7 @@ class Amf:
         Σ = np.linalg.inv(Σ_inv)
         mat_Ψ_1 = mat(Ψ_1, (k, n))  # μ_1_t
 
-        if self.add_to_path:
+        if self.add_Σ_to_path:
             self.Σ_t_tilde_path.append(Σ)
 
         Γ_0_bar = Γ_0 - 1 / 2 * np.log(np.linalg.det(Σ_inv)) + \
@@ -95,8 +94,28 @@ class Amf:
 
         return 𝒫_tilde
 
+    def iterate(self, T):
+        self.add_Σ_to_path = True
+
+        for _ in range(T):
+            temp = zip(self.𝒫, self.Ɛ_tilde(self.𝒫_t_bar_path[-1]))
+
+            𝒫_tilde = tuple(x + y for x, y in temp)
+            𝒫_bar = self.Ɛ_bar(𝒫_tilde)
+
+            self.𝒫_t_tilde_path.append(𝒫_tilde)
+            self.𝒫_t_bar_path.append(𝒫_bar)
+
+        self.add_Σ_to_path = False
+
     def 𝛆(self, x, t):
         x_1, x_2 = x
+
+        T = len(self.𝒫_t_tilde_path) - 1
+
+        if t > T:
+            self.iterate(t-T)
+
         Σ_t_tilde = self.Σ_t_tilde_path[t]  # FIX HERE
         _, _, _, _, Ψ_0, Ψ_1, _ = 𝒫_t_tilde_path[t]
 

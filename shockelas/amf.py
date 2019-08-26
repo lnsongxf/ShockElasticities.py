@@ -230,7 +230,7 @@ class Amf:
         Σ_t_tilde = self.Σ_t_tilde_path[t]  # FIX HERE
         _, _, _, _, Ψ_0, Ψ_1, _ = 𝒫_t_tilde_path[t]
 
-        μ_1_t = Ψ_0
+        μ_0_t = Ψ_0
         μ_1_t = mat(Ψ_1, (k, n))
 
         𝛆_x_t = self.α_h(x).T @ Σ_t_tilde @ (μ_0_t + μ_1_t @ x_1)

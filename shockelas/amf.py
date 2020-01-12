@@ -64,6 +64,8 @@ class Amf:
         self.tri_ss = tri_ss
         self.α_h = α_h
 
+        self.n, self.k = 𝒫[1].shape[1], 𝒫[4].shape[1]
+
         𝒫_0_bar = tuple(np.zeros_like(x) for x in 𝒫)
         self.𝒫_t_bar_path = [𝒫_0_bar]
         self.𝒫_t_tilde_path = [None]
@@ -87,11 +89,10 @@ class Amf:
             Γ_2_bar, Γ_3_bar, Ψ_0_bar, Ψ_1_bar, Ψ_2_bar.
 
         """
-
         # Unpack parameters
         Γ_0, Γ_1, Γ_2, Γ_3, Ψ_0, Ψ_1, Ψ_2 = 𝒫
 
-        n, k = Γ_1.shape[1], Ψ_0.shape[1]
+        n, k = self.n, self.k
 
         # Compute 𝒫_bar
         Σ_inv = np.eye(k) - sym(mat(2 * Ψ_2, (k, k)))
@@ -143,7 +144,7 @@ class Amf:
         Λ_21 = self.tri_ss.Λ_21
         Λ_22 = self.tri_ss.Λ_22
 
-        n, k = Θ_10.shape[0], Λ_10.shape[0]
+        n, k = self.n, self.k
 
         Γ_0_bar, Γ_1_bar, Γ_2_bar, Γ_3_bar, Ψ_0_bar, Ψ_1_bar, Ψ_2_bar = 𝒫_bar
 
@@ -219,7 +220,6 @@ class Amf:
             Shock elasticity.
 
         """
-
         x_1, x_2 = x
 
         T = len(self.𝒫_t_tilde_path) - 1
@@ -228,11 +228,11 @@ class Amf:
             self.iterate(t-T)
 
         Σ_t_tilde = self.Σ_t_tilde_path[t]  # FIX HERE
-        _, _, _, _, Ψ_0, Ψ_1, _ = 𝒫_t_tilde_path[t]
+        _, _, _, _, Ψ_0, Ψ_1, _ = self.𝒫_t_tilde_path[t]
 
-        μ_0_t = Ψ_0
-        μ_1_t = mat(Ψ_1, (k, n))
+        μ_0_t = Ψ_0.T
+        μ_1_t = mat(Ψ_1, (self.k, self.n))
 
         𝛆_x_t = self.α_h(x).T @ Σ_t_tilde @ (μ_0_t + μ_1_t @ x_1)
 
-        return np.asscalar(𝛆_x_t)
+        return 𝛆_x_t

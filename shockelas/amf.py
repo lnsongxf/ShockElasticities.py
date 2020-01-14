@@ -36,7 +36,7 @@ class Amf:
         state vector system.
 
     α_h : ndarray(float, ndim=2), optional(default=None)
-        An array representinng the shock exposure direction.
+        An array representing the shock exposure direction.
 
     Attributes
     ----------
@@ -233,6 +233,9 @@ class Amf:
         μ_0_t = Ψ_0.T
         μ_1_t = mat(Ψ_1, (self.k, self.n))
 
-        𝛆_x_t = self.α_h(x).T @ Σ_t_tilde @ (μ_0_t + μ_1_t @ x_1)
+        if self.α_h is None:
+            𝛆_x_t = Σ_t_tilde @ (μ_0_t + μ_1_t @ x_1)
+        else:
+            𝛆_x_t = self.α_h.T @ Σ_t_tilde @ (μ_0_t + μ_1_t @ x_1)
 
         return 𝛆_x_t
